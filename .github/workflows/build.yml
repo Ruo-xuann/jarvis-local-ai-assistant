@@ -29,8 +29,41 @@ jobs:
         run: |
           pyinstaller --onefile --windowed --name Jarvis gui.py
 
-      - name: Upload Jarvis.exe
+      - name: Create README
+        run: |
+          @"
+          JARVIS - Local AI Assistant
+
+          1. Install Ollama:
+             https://ollama.com/
+
+          2. Make sure Ollama is running.
+
+          3. Download the Qwen model:
+             ollama pull qwen2.5-coder:7b
+
+          4. Run Jarvis.exe
+
+          Jarvis uses Ollama by default with:
+          Model: qwen2.5-coder:7b
+          URL: http://localhost:11434/v1
+
+          Settings can be changed inside Jarvis.
+
+          Privacy:
+          Local Ollama conversations stay on your computer unless
+          you configure Jarvis to use a remote AI provider.
+          "@ | Out-File -FilePath dist\README.txt -Encoding utf8
+
+      - name: Create package
+        run: |
+          New-Item -ItemType Directory -Force -Path package
+          Copy-Item dist\Jarvis.exe package\Jarvis.exe
+          Copy-Item dist\README.txt package\README.txt
+          Compress-Archive -Path package\* -DestinationPath Jarvis-Windows.zip
+
+      - name: Upload Jarvis package
         uses: actions/upload-artifact@v4
         with:
           name: Jarvis-Windows
-          path: dist/Jarvis.exe
+          path: Jarvis-Windows.zip
